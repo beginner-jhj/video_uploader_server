@@ -9,7 +9,7 @@ WORKDIR /app
 
 # 의존성 먼저 복사 (캐싱 최적화)
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # 소스코드 복사
 COPY . .
