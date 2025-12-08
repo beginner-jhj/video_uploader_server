@@ -3,7 +3,7 @@ import { loadTokens, saveYoutubeTokens, checkYoutubeAuth, getYoutubeAuthURL } fr
 
 const authRouter = express.Router();
 
-authRouter.get("/check", (req, res) => { 
+authRouter.get("/check", async (req, res) => { 
     try{
         const tokens = loadTokens();
         const platforms = {
@@ -21,7 +21,7 @@ authRouter.get("/check", (req, res) => {
             }
         };
 
-        const youtubeAuth = checkYoutubeAuth(tokens.youtube?.refresh_token);
+        const youtubeAuth = await checkYoutubeAuth(tokens.youtube?.refresh_token);
         platforms.youtube.isAuthenticated = youtubeAuth;
 
         res.status(200).json({platform: Object.values(platforms)});

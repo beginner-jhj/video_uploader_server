@@ -61,13 +61,13 @@ export function saveTokens(tokens){
     console.log("✅ Tokens saved to tokens.json");
 }
 
-export function checkYoutubeAuth(refreshToken){
+export async function checkYoutubeAuth(refreshToken){
     if(!refreshToken || refreshToken==="") return false;
 
     try{
         youtubeOAuth.setCredentials({refresh_token:refreshToken});
         const youtube = google.youtube({version:"v3", auth: youtubeOAuth});
-        youtube.channels.list({part:"snippet", mine:true});
+        await youtube.channels.list({part:"snippet", mine:true});
         return true;
     }catch(error){
         console.error("Error checking YouTube auth:", error);
