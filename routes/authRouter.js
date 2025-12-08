@@ -5,30 +5,30 @@ const authRouter = express.Router();
 
 authRouter.get("/check", (req, res) => { 
     try{
-    const tokens = loadTokens();
-    const platforms = {
-        youtube:{
-            name:"youtube",
-            isAuthenticated: false
-        },
-        instagram:{
-            name:"instagram",
-            isAuthenticated: true // To be implemented
-        },
-        tiktok:{
-            name:"tiktok",
-            isAuthenticated:true // To be implemented
-        }
-    };
+        const tokens = loadTokens();
+        const platforms = {
+            youtube:{
+                name:"youtube",
+                isAuthenticated: false
+            },
+            instagram:{
+                name:"instagram",
+                isAuthenticated: true // To be implemented
+            },
+            tiktok:{
+                name:"tiktok",
+                isAuthenticated:true // To be implemented
+            }
+        };
 
-    const youtubeAuth = checkYoutubeAuth(tokens.youtube?.refresh_token);
-    platforms.youtube.isAuthenticated = youtubeAuth;
+        const youtubeAuth = checkYoutubeAuth(tokens.youtube?.refresh_token);
+        platforms.youtube.isAuthenticated = youtubeAuth;
 
-    res.status(200).json({platform: Object.values(platforms)});
+        res.status(200).json({platform: Object.values(platforms)});
 
     }catch(error){
         console.error(error);
-        throw error;
+        res.status(500).json({ error: error.message });
     }
 })
 
@@ -41,10 +41,12 @@ authRouter.get("/youtube/callback", async (req,res)=>{
     const { code } = req.query;
     const success = await saveYoutubeTokens(code);
 
+    const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5174";
+
     if(success){
-        res.status(200).redirect("http://localhost:5174/authenticate?platform=youtube");
+        res.status(200).redirect(`${CLIENT_URL}/authenticate?platform=youtube`);
     }else{
-        throw new Error("Failed to save YouTube tokens");
+        res.status(500).json({ error: "Failed to save YouTube tokens" });
     }
 })
 

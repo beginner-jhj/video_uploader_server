@@ -35,7 +35,11 @@ export default function uploadRouter(io) {
                 })
             })
             const fileName = path.basename(processedPath);
-            const previewUrl = `http://localhost:5000/upload/preview/${fileName}`;
+            
+            // Railway 배포시 동적 URL 사용
+            const SERVER_URL = process.env.SERVER_URL || `http://localhost:${process.env.PORT || 5000}`;
+            const previewUrl = `${SERVER_URL}/upload/preview/${fileName}`;
+            
             emit("video-processing-finished", '영상 처리 완료!', { progress: 50 });
 
             let currentProgress = 50;
@@ -57,7 +61,8 @@ export default function uploadRouter(io) {
                     emit("upload-youtube-finished", "YouTube 업로드 완료!", {
                         progress: currentProgress
                     })
-                } catch {
+                } catch (error) {
+                    console.error("YouTube upload error:", error);
                     uploadResults.push({
                         platform: "youtube",
                         status: "skipped"
@@ -115,17 +120,23 @@ export default function uploadRouter(io) {
                 previewUrl
             })
 
+            // 원본 파일 즉시 삭제
             fs.unlinkSync(videoFile.path);
 
+            // 처리된 파일 10분 후 삭제
             setTimeout(() => {
-                if (fs.existsSync(processedPath)) fs.unlinkSync(processedPath);
+                if (fs.existsSync(processedPath)) {
+                    fs.unlinkSync(processedPath);
+                    console.log(`Deleted processed file: ${processedPath}`);
+                }
             }, 10 * 60 * 1000);
 
         } catch (err) {
+            console.error("Upload error:", err);
             emit("error", `업로드 실패: ${err.message || ""}`, {
                 progress: 100
             })
-            throw err
+            res.status(500).json({ error: err.message });
         }
     })
 
