@@ -16,14 +16,49 @@ export const youtubeOAuth = new google.auth.OAuth2(
 )
 
 export function loadTokens(){
+    // 1순위: 환경변수에서 로드 (Railway 배포용)
+    if(process.env.YOUTUBE_REFRESH_TOKEN){
+        console.log("✅ Loading tokens from environment variables");
+        return {
+            youtube: {
+                access_token: process.env.YOUTUBE_ACCESS_TOKEN || "",
+                refresh_token: process.env.YOUTUBE_REFRESH_TOKEN
+            },
+            instagram: {
+                access_token: process.env.INSTAGRAM_ACCESS_TOKEN || "",
+                refresh_token: process.env.INSTAGRAM_REFRESH_TOKEN || ""
+            },
+            tiktok: {
+                access_token: process.env.TIKTOK_ACCESS_TOKEN || "",
+                refresh_token: process.env.TIKTOK_REFRESH_TOKEN || ""
+            }
+        };
+    }
+    
+    // 2순위: 파일에서 로드 (로컬 개발용)
     if(!fs.existsSync(TOKENS_FILE)){
+        console.log("⚠️  No tokens found (neither env vars nor tokens.json)");
         return {};
     }
+    console.log("✅ Loading tokens from tokens.json");
     return JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf-8'));
 }
 
 export function saveTokens(tokens){
+    // Railway 환경에서는 파일 저장이 의미 없음 (재시작시 삭제됨)
+    if(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_STATIC_URL){
+        console.log("\n⚠️  Railway 환경에서는 tokens.json 파일이 유지되지 않습니다.");
+        console.log("⚠️  다음 토큰을 Railway Variables에 추가하세요:\n");
+        if(tokens.youtube){
+            console.log(`YOUTUBE_ACCESS_TOKEN=${tokens.youtube.access_token}`);
+            console.log(`YOUTUBE_REFRESH_TOKEN=${tokens.youtube.refresh_token}\n`);
+        }
+        return;
+    }
+    
+    // 로컬 환경에서는 파일로 저장
     fs.writeFileSync(TOKENS_FILE, JSON.stringify(tokens, null, 2), 'utf-8');
+    console.log("✅ Tokens saved to tokens.json");
 }
 
 export function checkYoutubeAuth(refreshToken){
@@ -58,7 +93,8 @@ export async function saveYoutubeTokens(code){
         }
         saveTokens(allTokens);
         return true;
-    }catch{
+    }catch(error){
+        console.error("Error saving YouTube tokens:", error);
         return false;
     }
 }
