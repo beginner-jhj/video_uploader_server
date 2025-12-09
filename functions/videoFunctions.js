@@ -32,9 +32,9 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
 
         const videoFilters = [
             `drawtext=text='Day ${dayNumber}':` +
-            `fontsize=80:` +
+            `fontsize=120:` +
             `fontcolor=white:` +
-            `x=80:` +
+            `x=(w-text_w)/2::` +
             `y='if(lt(t,${holdTime}), ${centerY}, if(lt(t,${holdTime + moveTime}), ${centerY}-(t-${holdTime})*(${centerY}-${topY})/${moveTime}, ${topY}))':` +
             `shadowcolor=black@0.7:` +
             `shadowx=3:` +
