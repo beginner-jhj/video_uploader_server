@@ -26,7 +26,7 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
         const speed = originalDuration > 15 ? Math.round(originalDuration / 15) : 1;
         const subtitleDuration = Math.max(3.5, originalDuration * speed * 0.1);
         const centerY = 'h/2-text_h/2';
-        const topY = 50;
+        const topY = 100;
         const holdTime = speed * 0.3;
         const moveTime = 0.5;
 
