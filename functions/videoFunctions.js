@@ -24,10 +24,10 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
 
         const originalDuration = await getVidioDuration(inputPath);
         const speed = originalDuration > 15 ? Math.round(originalDuration / 15) : 1;
-        const subtitleDuration = Math.max(3.5,originalDuration*speed*0.1);
+        const subtitleDuration = Math.max(3.5, originalDuration * speed * 0.1);
         const centerY = 'h/2-text_h/2';
         const topY = 50;
-        const holdTime = speed*0.3;
+        const holdTime = speed * 0.3;
         const moveTime = 1;
 
         const videoFilters = [
@@ -72,6 +72,22 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
     })
 }
 
+function generateThumbnail(videoPath) {
+    return new Promise((resolve, reject) => {
+        const thumbnailPath = path.join("processed", `thumb_${Date.now()}.jpg`);
+
+        ffmpeg(videoPath)
+            .screenshots({
+                timestamps: ['00:00:01'],
+                filename: path.basename(thumbnailPath),
+                folder: 'processed',
+                size: '1280x720'
+            })
+            .on('end', () => resolve(thumbnailPath))
+            .on('error', (err) => reject(err));
+    });
+}
+
 
 export async function uploadToYoutube(videoPath, title, onProgress) {
     const tokens = loadTokens();
@@ -102,12 +118,34 @@ export async function uploadToYoutube(videoPath, title, onProgress) {
             }
         }, {
             onUploadProgress: (evt) => {
-                const progress = (evt.bytesRead / fileSize) * 100;
+                const progress = (evt.bytesRead / fileSize) * 90;
                 if (onProgress) {
                     onProgress(Math.round(progress))
                 }
             }
         })
+
+        const videoId = response.data.id;
+
+        try {
+            if (onProgress) onProgress(92);
+            const thumbnailPath = await generateThumbnail(videoPath);
+
+            if (onProgress) onProgress(95);
+            await youtube.thumbnails.set({
+                videoId: videoId,
+                media: {
+                    body: fs.createReadStream(thumbnailPath)
+                }
+            });
+
+            fs.unlinkSync(thumbnailPath);
+            if (onProgress) onProgress(100);
+        } catch (thumbError) {
+            console.error("썸네일 업로드 실패 (영상은 성공):", thumbError);
+            if (onProgress) onProgress(100);
+        }
+
         return {
             videoId: response.data.id,
             url: `https://youtube.com/shorts/${response.data.id}`
