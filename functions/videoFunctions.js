@@ -24,11 +24,11 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
 
         const originalDuration = await getVidioDuration(inputPath);
         const speed = originalDuration > 15 ? Math.round(originalDuration / 15) : 1;
-        const subtitleDuration = Math.max(3.5, (originalDuration / speed) * 0.3)
+        const subtitleDuration = Math.max(3.5,originalDuration*speed*0.1);
         const centerY = 'h/2-text_h/2';
         const topY = 50;
-        const holdTime = 1;
-        const moveTime = 0.5;
+        const holdTime = speed*0.3;
+        const moveTime = 1;
 
         const videoFilters = [
             `drawtext=text='Day ${dayNumber}':` +
@@ -49,7 +49,7 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
             .audioFilters(`atempo=${speed}`)
             .outputOptions([
                 '-c:v libx264',
-                '-preset medium',
+                '-preset fast',
                 '-crf 23',
                 '-c:a aac',
                 '-b:a 128k'

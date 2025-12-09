@@ -45,7 +45,6 @@ export function loadTokens() {
 }
 
 export function saveTokens(tokens) {
-    // Railway 환경에서는 파일 저장이 의미 없음 (재시작시 삭제됨)
     if (process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_STATIC_URL) {
         console.log("\n⚠️  Railway 환경에서는 tokens.json 파일이 유지되지 않습니다.");
         console.log("⚠️  다음 토큰을 Railway Variables에 추가하세요:\n");
@@ -53,12 +52,12 @@ export function saveTokens(tokens) {
             console.log(`YOUTUBE_ACCESS_TOKEN=${tokens.youtube.access_token}`);
             console.log(`YOUTUBE_REFRESH_TOKEN=${tokens.youtube.refresh_token}\n`);
         }
-        return;
+        return true;
     }
 
-    // 로컬 환경에서는 파일로 저장
     fs.writeFileSync(TOKENS_FILE, JSON.stringify(tokens, null, 2), 'utf-8');
     console.log("✅ Tokens saved to tokens.json");
+    return true;
 }
 
 export async function checkYoutubeAuth(refreshToken) {
