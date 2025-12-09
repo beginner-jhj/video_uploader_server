@@ -28,18 +28,18 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
         const centerY = 'h/2-text_h/2';
         const topY = 50;
         const holdTime = speed * 0.3;
-        const moveTime = 1;
+        const moveTime = 0.5;
 
         const textLength = String(dayNumber).length;
         let fontSize;
         if (textLength <= 2) {
             fontSize = 200;  // Day 1 ~ Day 99
         } else if (textLength === 3) {
-            fontSize = 180;  // Day 100 ~ Day 999
+            fontSize = 190;  // Day 100 ~ Day 999
         } else if (textLength === 4) {
-            fontSize = 160;   // Day 1000 ~ Day 9999
+            fontSize = 180;   // Day 1000 ~ Day 9999
         } else {
-            fontSize = 140;   // Day 10000+
+            fontSize = 170;   // Day 10000+
         }
 
         const videoFilters = [
@@ -90,7 +90,7 @@ function generateThumbnail(videoPath) {
 
         ffmpeg(videoPath)
             .screenshots({
-                timestamps: ['00:00:00'],
+                timestamps: ['00:00:01'],
                 filename: path.basename(thumbnailPath),
                 folder: 'processed',
                 size: '1280x720'
