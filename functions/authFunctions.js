@@ -89,10 +89,8 @@ export async function saveYoutubeTokens(code) {
         if (process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_STATIC_URL) {
             console.log("\n⚠️  Railway 환경에서는 tokens.json 파일이 유지되지 않습니다.");
             console.log("⚠️  다음 토큰을 Railway Variables에 추가하세요:\n");
-            if (tokens.youtube) {
-                console.log(`YOUTUBE_ACCESS_TOKEN=${tokens.youtube.access_token}`);
-                console.log(`YOUTUBE_REFRESH_TOKEN=${tokens.youtube.refresh_token}\n`);
-            }
+            console.log(`YOUTUBE_ACCESS_TOKEN=${tokens.access_token}`);
+            console.log(`YOUTUBE_REFRESH_TOKEN=${tokens.refresh_token}\n`);
             return true;
         }
         const allTokens = loadTokens();
