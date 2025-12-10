@@ -28,7 +28,7 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
         const centerY = 'h/2-text_h/2';
         const topY = 100;
         const holdTime = speed * 0.3;
-        const moveTime = 0.5;
+        const moveTime = 1;
 
         const textLength = String(dayNumber).length;
         let fontSize;
@@ -48,9 +48,6 @@ export async function processVideo(inputPath, dayNumber, onProgress) {
             `fontcolor=white:` +
             `x=(w-text_w)/2::` +
             `y='if(lt(t,${holdTime}), ${centerY}, if(lt(t,${holdTime + moveTime}), ${centerY}-(t-${holdTime})*(${centerY}-${topY})/${moveTime}, ${topY}))':` +
-            `shadowcolor=black@0.7:` +
-            `shadowx=3:` +
-            `shadowy=3:` +
             `fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:` +
             `enable='lt(t,${subtitleDuration})'`,
             `setpts=PTS/${speed}`
